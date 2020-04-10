@@ -9,24 +9,38 @@ import axios from 'axios';
 class Blog extends Component {
 
     state = {
-        posts:[]
+        posts:[],
+        selectedPostId: null
     }
 
     componentDidMount() {
         axios.get("https://jsonplaceholder.typicode.com/posts")
             .then(response => {
                 console.log(response);
+                const posts = response.data.slice(0, 4);
+                const updatedPost = posts.map(post => {
+                    return {
+                        ...post,
+                        author: 'Max'
+                    }
+                });
                 this.setState({
-                    posts: response.data
+                    posts: updatedPost
                 });
             });
+    }
+
+    postSelectedHandler = (id) => {
+        this.setState({
+            selectedPostId: id
+        });
     }
 
 
     render () {
 
         const posts = this.state.posts.map(post => {
-            return <Post key={post.id} title={post.title} author={post.userId} />
+            return <Post clicked={()=> this.postSelectedHandler(post.id)} key={post.id} title={post.title} author={post.author} />
         });
 
         return (
@@ -35,7 +49,7 @@ class Blog extends Component {
                     {posts}
                 </section>
                 <section>
-                    <FullPost />
+                    <FullPost id={this.state.selectedPostId} />
                 </section>
                 <section>
                     <NewPost />
